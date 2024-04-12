@@ -59,11 +59,11 @@ Each team member should create a new Posit Cloud project in the Stats 306 worksp
 In your Terminal tab, run the following commands:
 
 ```
+rm project.Rproj
 git init .
 git config user.name "Your Name"
 git config user.email "Your Email Address"
 git config credential.helper store
-git branch -M main
 ```
 
 Go to GitHub and retrieve the `https://github.com/...` version of the URL to your repository.
@@ -94,6 +94,7 @@ This will bring the Project 2 materials into the shared team repository on GitHu
 Now all members can run the following:
 
 ```
+git branch -M main
 git pull -u origin main
 ```
 
