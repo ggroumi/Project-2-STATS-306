@@ -8,15 +8,17 @@ Getting your team ready to collaborate on the project will require the following
 
 One team member should create a repository for your team on their own personal page.
 
-<Screenshot>
+![Creating Repository](images/create_repo.png)
+
+Select the "Private" option.
 
 Do not add a `README`, `.gitignore`, or license file (these will come later).
 
-For the moment, leave the repository unpopulated (i.e., do not follow the directions for how to commit your first files that you will be shown).
+For the moment, leave the repository empty (i.e., do not follow the directions for how to commit your first files that you will be shown).
 
 The team member who owns the repository should add the other team members as Collaborators.
 
-<Screenshot>
+![Adding collaborators](images/adding_collabs.png)
 
 ### Creating a Personal Access Token
 
@@ -26,19 +28,28 @@ Each team member will need to create a PAT with permissions to view and edit the
 
 To do so, go to you user icon and select Settings
 
-<Screenshot>
+![User settings](images/settings.png)
+
 
 On the left hand side of the screen, select "Developer Settings".
 
-<Screenshot>
+![Dev settings](images/dev_settings.png)
 
 Then select "Personal Access Token" and "Fine-grained Tokens". Then "Generate New Token".
 
-On this screen, select your token name and expiration length. For the resource owner, you should see the team member who invited collaborators. Under "Respository Access", select "Only select repositories" and find the private team repository in the drop down menu.
+![Generate Token](images/gen_token.png)
+
+On this screen, select your token name and expiration length. For the resource owner, you should see the team member who invited collaborators. Under "Repository Access", select "Only select repositories" and find the private team repository in the drop down menu.
+
+![Token Settings](images/token_settings_1.png)
+
 
 Under "Permissions", select the "Repository" section. Scroll down to find "Contents" and set this to the "Read and Write" option. Scroll to the bottom and generate your token.
 
-Copy the token and store it somewhere safe. If you use a password manager for your web browswer, you can store it there. We will copy it to posit cloud shortly, so you will not need to access it frequently, but you may need it later. After you close this page, you will not be able to retrieve it from github.
+![Contents RW](images/contents_rw.png)
+
+
+Copy the token and store it somewhere safe. If you use a password manager for your web browser, you can store it there. We will copy it to posit cloud shortly, so you will not need to access it frequently, but you may need it later. After you close this page, you will not be able to retrieve it from github.
 
 
 ### Creating Posit Cloud Projects
@@ -57,7 +68,8 @@ git branch -M main
 
 Go to GitHub and retrieve the `https://github.com/...` version of the URL to your repository.
 
-<SCREENSHOT>
+![Copy HTTPS](images/https_copy.png)
+
 
 Back in the terminal in Posit Cloud run the following commands:
 
@@ -85,7 +97,7 @@ Now all members can run the following:
 git pull -u origin main
 ```
 
-They will not get copies of the shared repository. Later, after adding and commiting changes, you can use
+They will not get copies of the shared repository. Later, after adding and committing changes, you can use
 
 ```
 git pull origin main
