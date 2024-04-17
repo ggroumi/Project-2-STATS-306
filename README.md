@@ -97,7 +97,7 @@ git config credential.helper store
 ```
 
 Go to GitHub and retrieve the `https://github.com/...` version of the URL to your repository.
-
+  
 ![Copy HTTPS](images/https_copy.png)
 
 
@@ -114,6 +114,7 @@ Designate one team member to do the following:
 
 ```
 git pull upstream main
+git branch -m main
 git push origin main
 ```
 
@@ -125,7 +126,7 @@ Now all members can run the following:
 
 ```
 git branch -M main
-git pull -u origin main
+git pull --set-upstream origin main
 ```
 
 They will not get copies of the shared repository. Later, after adding and committing changes, you can use
