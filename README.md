@@ -4,11 +4,38 @@
 
 Getting your team ready to collaborate on the project will require the following steps:
 
+### Create an Organization for Your Group
+
+One team member should create an **organization** for your group:
+
+![Creating Org](images/create_org.png)
+
+Select the free tier. Give the organization a name. We recommend selecting the "My personal account" option for the "The organization belongs to" question.
+
+Add the other users in the group.
+
+![Adding org users](images/add_org_users.png)
+
+Turn on Personal Access Token support by visiting this link in the Settings link for the organization:
+
+
+![enable PAT](images/org_pat1.png)
+
+Once there start by clicking continue for step 1. For step two, allow tokens to work immediately:
+
+![enable PAT](images/org_pat2.png)
+
+Click continue and finally enroll.
+
 ### Create a Private Repository for Your Group
 
-One team member should create a repository for your team on their own personal page.
+Once team members join the organization, one team member should create a repository:
 
 ![Creating Repository](images/create_repo.png)
+
+Here are the options (you can select a different name). Make sure you make the organization the owner.
+
+![Repository Options](images/create_options.png)
 
 Select the "Private" option.
 
@@ -16,9 +43,13 @@ Do not add a `README`, `.gitignore`, or license file (these will come later).
 
 For the moment, leave the repository empty (i.e., do not follow the directions for how to commit your first files that you will be shown).
 
-The team member who owns the repository should add the other team members as Collaborators.
+Once the repository is created, make sure all users in the organization have access:
 
-![Adding collaborators](images/adding_collabs.png)
+![Manage roles](images/repo_manage_roles.png)
+
+Give all members the base access level of "Read and Write". Click ok for the warning GitHub gives you.
+
+Repository is now ready to be linked in Posit Cloud.
 
 ### Creating a Personal Access Token
 
@@ -37,11 +68,10 @@ On the left hand side of the screen, select "Developer Settings".
 
 Then select "Personal Access Token" and "Fine-grained Tokens". Then "Generate New Token".
 
+On the next screen, select your token name and expiration length. For the resource owner, you should see organization who invited collaborators. Under "Repository Access", select "All repositories".
+
+
 ![Generate Token](images/gen_token.png)
-
-On this screen, select your token name and expiration length. For the resource owner, you should see the team member who invited collaborators. Under "Repository Access", select "Only select repositories" and find the private team repository in the drop down menu.
-
-![Token Settings](images/token_settings_1.png)
 
 
 Under "Permissions", select the "Repository" section. Scroll down to find "Contents" and set this to the "Read and Write" option. Scroll to the bottom and generate your token.
@@ -67,7 +97,7 @@ git config credential.helper store
 ```
 
 Go to GitHub and retrieve the `https://github.com/...` version of the URL to your repository.
-
+  
 ![Copy HTTPS](images/https_copy.png)
 
 
@@ -84,6 +114,7 @@ Designate one team member to do the following:
 
 ```
 git pull upstream main
+git branch -m main
 git push origin main
 ```
 
@@ -95,7 +126,7 @@ Now all members can run the following:
 
 ```
 git branch -M main
-git pull -u origin main
+git pull --set-upstream origin main
 ```
 
 They will not get copies of the shared repository. Later, after adding and committing changes, you can use
