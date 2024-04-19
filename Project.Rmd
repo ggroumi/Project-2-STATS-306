@@ -29,6 +29,13 @@ The [Internet Movie Database (IMDb)]() contains information on millions of movie
   * Write the resulting table to a file called "FILENAME.rda" (where FILENAME is the argument to the function) using the `save()` function.
 * Run the function on all of the `*_sample.csv.gz` files to created processed `.rda` files. You can load these using the `load()` function.
 
+
+```{r}
+
+
+```
+
+
 ## Part II: EDA of individual tables
 
 * For each of the 4 tables, perform basic exploratory data analysis. Report the following information:
