@@ -1,0 +1,53 @@
+```{r}
+
+load_files = function(filename) {
+  
+  file_path = paste0(filename, "_sample.csv.gz")
+  
+  data = read.csv(gzfile(file_path), na.strings = "\\N")
+  
+  file_path_rda = paste0(filename, ".rda")
+  
+  save(data, file = file_path_rda)
+  
+}
+
+
+getwd()
+
+files_in_data = list.files()
+
+sample_files = list.files(pattern = "_sample.csv.gz", full.names = F)
+
+sample_files = gsub("_sample.csv.gz", "", sample_files)
+
+lapply(sample_files, load_files)
+
+rda_files = list.files(pattern = ".rda", full.names = T)
+
+data_list <- list()
+
+for (file_path in rda_files) {
+  
+  env <- new.env()
+  
+  load(file_path, env)
+  
+  data_name <- ls(env)[1]
+  
+  data_object <- get(data_name, envir = env)
+
+  file_base_name <- tools::file_path_sans_ext(basename(file_path))
+  
+  data_list[[file_base_name]] <- data_object
+  
+}
+
+list2env(data_list, envir = .GlobalEnv)
+
+
+
+
+
+```
+
