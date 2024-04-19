@@ -8,8 +8,9 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(ggplot2)
+library(dplyr)
 
-print("hello")
 
 ```
 
@@ -32,6 +33,10 @@ The [Internet Movie Database (IMDb)]() contains information on millions of movie
 
 ```{r}
 
+str(name_basics) # chr - primaryName, primaryProfession
+str(title_basics) # chr - titleType, genres, runtimeMinutes
+str(title_principals) # chr -  category, job, characters
+str(title_ratings) # chr - 
 
 ```
 
@@ -46,6 +51,9 @@ The [Internet Movie Database (IMDb)]() contains information on millions of movie
   * use two different variables to group and explore how `runtimeMinutes` varies for these different groups. Produce appropriate summaries.
   * How many titles are known for name that is different than the original release name?
   * Graph the conditional distributions of release year based on the previous results. Comment on any trends you observe.
+  
+ here now (Gal) 
+  
 * For the ratings, use the `cut` function to break the data into three groups based on the average ratings. Are higher rated titles rated more often or less often than lower rated titles? 
 * For the names table, 
   * Count the number of titles each person is known for and plot this distribution.
@@ -55,6 +63,160 @@ The [Internet Movie Database (IMDb)]() contains information on millions of movie
       * Do the same for living cast members.
 * Find all the actors with first names "Tom", "Thomas", "Thom" or "Tomas". How many are there?
 * How many titles use alliteration (i.e., all words in the title start with the same letter)?
+
+
+```{r}
+##  quantitative columns summary statistics
+
+calculate_summary = function(column) {
+  summary_stats = summary(column, na.rm = TRUE)
+  sd_value = sd(column, na.rm = TRUE)
+  
+  summary_stats = c(summary_stats, SD = sd_value)
+  return(summary_stats)
+}
+
+name_basics_stats = list(birthYear = calculate_summary(name_basics$birthYear), deathYear = calculate_summary(name_basics$deathYear))
+
+title_basics_stats = list(isAdult = calculate_summary(title_basics$isAdult), startYear = calculate_summary(title_basics$startYear), endYear = calculate_summary(title_basics$endYear))
+
+title_principals_stats = list(ordering = calculate_summary(title_principals$ordering))
+
+title_ratings_stats = list(numVotes = calculate_summary(title_ratings$numVotes), averageRating = calculate_summary(title_ratings$averageRating))
+
+all_summary_stats = list(name_basics = name_basics_stats, title_basics = title_basics_stats, title_principals = title_principals_stats, title_ratings = title_ratings_stats)
+
+print(all_summary_stats)
+
+```
+
+```{r}
+## categorical distributions
+
+report_categorical_distribution <- function(column, column_name) {
+
+  factor_column <- factor(column)
+
+    cat("Distribution for", column_name, ":\n")
+    print(table(factor_column))
+    cat("\n")
+
+}
+
+report_categorical_distribution(name_basics$primaryProfession, "primaryProfession")
+
+report_categorical_distribution(title_basics$titleType, "titleType")
+report_categorical_distribution(title_basics$genres, "genres")
+
+report_categorical_distribution(title_principals$category, "category")
+report_categorical_distribution(title_principals$job, "job")
+
+```
+
+
+```{r}
+## plots
+
+# name basics
+ggplot(name_basics, aes(x = birthYear)) +
+  geom_histogram(binwidth = 10, fill = "orange", alpha = 0.7) +
+  geom_histogram(aes(x = deathYear), binwidth = 10, fill = "blue", alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Distribution of Birth and Death Years", x = "Year", y = "Count") +
+  scale_x_continuous(limits = c(1800, 2020)) +
+  theme(legend.position = "bottom") +
+  guides(fill = guide_legend(title = "Legend")) +
+  scale_fill_manual(values = c("orange", "blue"), labels = c("Birth Year", "Death Year"))
+
+
+# title basics
+title_counts = title_basics |>
+  group_by(startYear, titleType) |>
+  summarise(count = n()) |>
+  ungroup()
+
+ggplot(title_counts, aes(x = startYear, y = titleType, fill = count)) +
+  geom_tile() + 
+  scale_fill_gradient(low = "lightblue", high = "blue") + 
+  theme_minimal() +
+  labs(title = "Heatmap of Title Types over the Years", x = "Start Year", y = "Title Type",fill = "Count") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) 
+
+
+# title principals
+ggplot(title_principals, aes(x = ordering, fill = category)) +
+  geom_density(alpha = 0.7) +
+  theme_minimal() +
+  labs(title = "Density Plot of Ordering by Category", x = "Ordering", y = "Density") +
+  scale_fill_brewer(palette = "Set2") +
+  theme(legend.position = "right")
+
+
+# title ratings
+ggplot(title_ratings, aes(x = numVotes, y = averageRating)) +
+  geom_point(aes(color = averageRating), alpha = 0.6) +
+  scale_color_gradient(low = "blue", high = "red") +
+  geom_smooth(method = "lm", se = FALSE, linetype = "dashed") +
+  theme_minimal() +
+  labs(title = "Scatter Plot of Average Rating vs Num Votes in Title Ratings", x = "Number of Votes", y = "Average Rating") +
+  annotate("text", x = max(title_ratings$numVotes), y = min(title_ratings$averageRating), label = "Trend Line", hjust = 1, vjust = -1)
+
+```
+```{r}
+# for Title basics
+
+title_basics$runtimeMinutes = as.numeric(as.character(title_basics$runtimeMinutes))
+
+title_basics_separated = title_basics |>
+  separate_rows(genres, sep = ",") |>
+  mutate(decade = cut(startYear, breaks = seq(1890, 2020, by = 10), labels = paste(seq(1890, 2010, by = 10), "s", sep = ""), include.lowest = TRUE))
+
+runtime_summary_by_genre_and_year = title_basics_separated |>
+  group_by(genres, decade) |>
+  summarise(
+    titles_count = n(),
+    mean_runtime = mean(runtimeMinutes, na.rm = TRUE),
+    median_runtime = median(runtimeMinutes, na.rm = TRUE),
+    min_runtime = min(runtimeMinutes, na.rm = TRUE),
+    max_runtime = max(runtimeMinutes, na.rm = TRUE),
+    sd_runtime = sd(runtimeMinutes, na.rm = TRUE)
+  ) |>
+  ungroup() |>
+  arrange(genres, decade)
+
+print(runtime_summary_by_genre_and_year)
+
+ggplot(runtime_summary_by_genre_and_year, aes(x = decade, y = mean_runtime, group = genres, color = genres)) +
+  geom_line() +
+  geom_point() + 
+  theme_minimal() +
+  labs(title = "Mean Runtime Minutes by Genre and Decade", x = "Decade", y = "Mean Runtime Minutes", color = "Genre") +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) 
+
+
+#
+
+different_titles_count = title_basics |>
+  filter(primaryTitle != originalTitle) |>
+  summarise(count = n())
+
+print(different_titles_count)
+# How many titles are known for name that is different than the original release name? 7244
+
+titles_with_different_names = title_basics |>
+  filter(primaryTitle != originalTitle)
+
+ggplot(titles_with_different_names, aes(x = startYear)) +
+  geom_histogram(binwidth = 1, fill = "cornflowerblue") +
+  theme_minimal() +
+  labs(title = "Distribution of Release Years for Titles with Different Primary and Original Names", x = "Release Year", y = "Frequency")
+
+# The most noticeable trend is the increasing number of titles with different primary and original names over time,
+# especially in the second half of the 20th century and into the 21st century. This could suggest that the practice of
+# using different names for the same title has become more common in recent times.
+
+```
+
 
 ## Part III: Pivoting
 
