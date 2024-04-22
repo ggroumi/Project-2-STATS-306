@@ -51,10 +51,9 @@ str(title_ratings) # chr -
   * use two different variables to group and explore how `runtimeMinutes` varies for these different groups. Produce appropriate summaries.
   * How many titles are known for name that is different than the original release name?
   * Graph the conditional distributions of release year based on the previous results. Comment on any trends you observe.
-  
- here now (Gal) 
-  
 * For the ratings, use the `cut` function to break the data into three groups based on the average ratings. Are higher rated titles rated more often or less often than lower rated titles? 
+
+
 * For the names table, 
   * Count the number of titles each person is known for and plot this distribution.
   * investigate the age of cast members
@@ -214,6 +213,97 @@ ggplot(titles_with_different_names, aes(x = startYear)) +
 # The most noticeable trend is the increasing number of titles with different primary and original names over time,
 # especially in the second half of the 20th century and into the 21st century. This could suggest that the practice of
 # using different names for the same title has become more common in recent times.
+
+```
+
+```{r}
+# title ratings 
+
+title_ratings = title_ratings |> 
+  mutate(rating_group = cut(averageRating, breaks = quantile(averageRating, probs = c(0, 1/3, 2/3, 1), na.rm = T), labels = c("Low", "Medium", "High"), include.lowest = T))
+
+rating_summary = title_ratings |>
+  group_by(rating_group) |>
+  summarise(mean_votes = mean(numVotes, na.rm = TRUE), total_num_votes = sum(numVotes, na.rm = TRUE), count = n())
+
+print(rating_summary)
+
+# it seems that for the higher ratings there are more votes than the rest of the rating groups. 
+
+```
+
+```{r}
+# name basis
+
+name_basics = name_basics |> 
+  mutate(number_of_titles = sapply(strsplit(knownForTitles, ","), length))
+
+head(name_basics$number_of_titles)
+
+ggplot(name_basics, aes(x = number_of_titles)) +
+  geom_histogram(binwidth = 1, fill = "coral4", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Number of Titles Each Person is Known For", x = "Number of Known For Titles", y = "Count of Persons")
+
+
+#
+name_basics = name_basics |>
+  mutate(birthYear = as.numeric(birthYear), deathYear = as.numeric(deathYear), Age = ifelse(!is.na(deathYear), deathYear - birthYear, as.numeric(format(Sys.Date(), "%Y")) - birthYear))
+
+living_cast = filter(name_basics, is.na(deathYear))
+deceased_cast = filter(name_basics, !is.na(deathYear))
+
+
+ggplot(deceased_cast, aes(x = Age)) +
+  geom_histogram(binwidth = 1, fill = "tomato", color = "black") +
+  theme_minimal() +
+  labs(title = "Age Distribution of Deceased Cast Members", x = "Age at Death", y = "Count")
+
+
+ggplot(living_cast, aes(x = Age)) +
+  geom_histogram(binwidth = 1, fill = "dodgerblue", color = "black") +
+  xlim(0, 130) +
+  theme_minimal() +
+  labs(title = "Age Distribution of Living Cast Members", x = "Current Age", y = "Count")
+
+
+#
+actors_named_tom = name_basics |>
+  filter(str_detect(primaryName, "^Tom|^Thomas|^Thom|^Tomas"), str_detect(primaryProfession, "actor")) |>
+  distinct(primaryName)
+
+num_actors_named_tom = nrow(actors_named_tom)
+
+num_actors_named_tom
+
+# we have that 2051 actors are names Tom. 
+
+```
+
+```{r}
+# titles 
+is_alliterative = function(title) {
+
+  words = unlist(str_split(title, "\\s+"))
+
+  significant_words = words[!tolower(words) %in% c("the", "a", "an", "and", "but", "or", "for", "nor", "on", "at", "to", "from", "by")]
+  if (length(significant_words) <= 1) {
+    return(FALSE)  
+  }
+ 
+  first_letters = tolower(substr(significant_words, 1, 1))
+
+  all(first_letters == first_letters[1])
+}
+
+
+alliterative_titles_count = title_basics |>
+  filter(sapply(primaryTitle, is_alliterative)) |>
+  summarise(count = n())
+
+alliterative_titles_count
+
+# we have that 3636 titles use alliteration. 
 
 ```
 
